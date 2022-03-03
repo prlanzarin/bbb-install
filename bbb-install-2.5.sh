@@ -284,6 +284,7 @@ main() {
   check_LimitNOFILE
 
   configure_HTML5 
+  configure_KMS_IP
 
   if [ -n "$API_DEMOS" ]; then
     need_pkg bbb-demo
@@ -616,6 +617,22 @@ configure_HTML5() {
 
    sed -i "s/[;]*externalIPv4=.*/externalIPv4=$IP/g"                   /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
    sed -i "s/[;]*iceTcp=.*/iceTcp=0/g"                                 /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
+  fi
+}
+
+# Sets the external IPv4 to be used by Kurento in an environment variable
+# file (override)
+configure_KMS_IP () {
+  KMS_ETC_CONFIG=/etc/bigbluebutton/kurento.env
+
+  if [ ! -f "$KMS_ETC_CONFIG" ]; then
+    touch "$KMS_ETC_CONFIG"
+  fi
+
+  if [[ -z $(grep "^EXTERNAL_IPV4" "$KMS_ETC_CONFIG"| cut -d = -f 2-) ]]; then
+    echo "EXTERNAL_IPV4=$IP" >> "$KMS_ETC_CONFIG"
+  else
+    sed -i "s/[;]*EXTERNAL_IPV4=.*/EXTERNAL_IPV4=$IP/g" "$KMS_ETC_CONFIG"
   fi
 }
 
